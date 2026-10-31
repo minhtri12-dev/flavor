@@ -1,0 +1,64 @@
+/* Tailwind v4 (mặc định của create-next-app mới).
+   Nếu dự án dùng Tailwind v3, thay dòng dưới bằng 3 dòng:
+   @tailwind base; @tailwind components; @tailwind utilities; */
+@import "tailwindcss";
+
+:root {
+  --ivory: #f7f3ea;
+  --tomato: #d9573b;
+  --sage: #87977b;
+  --espresso: #30251f;
+  --beige: #e8dfd1;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5.5rem;
+}
+
+body {
+  background: var(--ivory);
+  color: var(--espresso);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+:focus-visible {
+  outline-color: var(--tomato);
+}
+
+::selection {
+  background: var(--tomato);
+  color: var(--ivory);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
