@@ -1,6 +1,7 @@
 "use client";
 
 import RecipeCard from "@/components/RecipeCard";
+import Reveal from "@/components/Reveal";
 import type { Language, RecipeMatch } from "@/types";
 
 interface RecipeSectionProps {
@@ -37,21 +38,25 @@ export default function RecipeSection({
     <section
       id={id}
       aria-labelledby={headingId}
-      className={tinted ? "bg-[#E8DFD1]" : undefined}
+      className={tinted ? "bg-oat" : undefined}
     >
-      <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
-        <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="page-container section-pad">
+        <Reveal className="mb-12 grid gap-4 md:grid-cols-12 md:items-end">
           <h2
             id={headingId}
-            className="font-display text-4xl leading-tight md:text-5xl"
+            className="font-display text-headline md:col-span-7"
           >
             {title}
           </h2>
-          {note && <p className="max-w-sm text-[#30251F]/70">{note}</p>}
-        </div>
+          {note && (
+            <p className="text-lead text-muted md:col-span-4 md:col-start-9">
+              {note}
+            </p>
+          )}
+        </Reveal>
 
         {matches.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-[#30251F]/30 p-10 text-center text-[#30251F]/80">
+          <p className="rounded-card border border-dashed border-charcoal/30 p-10 text-center text-muted">
             {emptyMessage}
           </p>
         ) : (
@@ -65,6 +70,7 @@ export default function RecipeSection({
                 isFavorite={favoriteSlugs.includes(match.recipe.slug)}
                 onToggleFavorite={onToggleFavorite}
                 featured={hasFeatured && index === 0}
+                index={index}
               />
             ))}
           </div>

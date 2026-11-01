@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { getIngredientName } from "@/data/ingredients";
 import { DICTIONARY } from "@/lib/i18n";
+import { EASE } from "@/lib/motion";
 import { useLanguage } from "@/lib/storage";
 import type { Language, Recipe } from "@/types";
 
@@ -79,7 +80,6 @@ function pickVoice(
   return [...candidates].sort((a, b) => score(b) - score(a))[0];
 }
 
-const EASE = [0.22, 1, 0.36, 1] as const;
 const TIMER_OPTIONS = [1, 5, 10] as const;
 const SPEECH_LANG: Record<Language, string> = { en: "en-US", vi: "vi-VN" };
 const NEXT_WORDS = ["next", "tiep", "sang buoc"];
@@ -106,10 +106,10 @@ const slide = {
 };
 
 const ROUND_BUTTON =
-  "grid size-16 place-items-center rounded-full border border-[#F7F3EA]/30 transition-colors hover:bg-[#F7F3EA]/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
+  "grid size-16 place-items-center rounded-full border border-cream/30 transition-colors hover:bg-cream/10 disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
 
 const PILL_BUTTON =
-  "inline-flex items-center gap-2 rounded-full border border-[#F7F3EA]/30 px-5 py-2.5 text-sm transition-colors hover:bg-[#F7F3EA]/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]";
+  "inline-flex items-center gap-2 rounded-full border border-cream/30 px-5 py-2.5 text-sm transition-colors hover:bg-cream/10";
 
 export default function CookingMode({ recipe }: CookingModeProps) {
   const router = useRouter();
@@ -281,12 +281,12 @@ export default function CookingMode({ recipe }: CookingModeProps) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[#30251F] text-[#F7F3EA]">
+      <div className="fixed inset-0 z-50 flex flex-col overflow-y-auto bg-charcoal text-cream">
         <header className="flex items-center gap-4 px-5 py-5 md:px-10">
           <Link
             href={detailHref}
             aria-label={copy.exit}
-            className="grid size-11 shrink-0 place-items-center rounded-full border border-[#F7F3EA]/30 transition-colors hover:bg-[#F7F3EA]/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
+            className="grid size-11 shrink-0 place-items-center rounded-full border border-cream/30 transition-colors hover:bg-cream/10"
           >
             <X size={18} aria-hidden />
           </Link>
@@ -301,10 +301,10 @@ export default function CookingMode({ recipe }: CookingModeProps) {
               aria-valuemin={1}
               aria-valuemax={total}
               aria-valuenow={step + 1}
-              className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#F7F3EA]/15"
+              className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream/15"
             >
               <motion.div
-                className="h-full rounded-full bg-[#D9573B]"
+                className="h-full rounded-full bg-terracotta"
                 animate={{ width: `${((step + 1) / total) * 100}%` }}
                 transition={{ duration: 0.4, ease: EASE }}
               />
@@ -318,7 +318,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
             title={voiceSupported ? copy.voice : copy.voiceUnsupported}
             onClick={() => setListening((value) => !value)}
             className={`${PILL_BUTTON} shrink-0 disabled:cursor-not-allowed disabled:opacity-40 ${
-              listening ? "border-[#D9573B] bg-[#D9573B]" : ""
+              listening ? "border-terracotta bg-terracotta" : ""
             }`}
           >
             {listening ? (
@@ -333,7 +333,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
         </header>
 
         <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col justify-center px-5 py-8 md:px-10">
-          <p className="text-[#E8DFD1]/70">{copy.step(step + 1, total)}</p>
+          <p className="text-oat/70">{copy.step(step + 1, total)}</p>
 
           <AnimatePresence mode="wait" custom={direction} initial={false}>
             <motion.p
@@ -354,7 +354,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
           <div className="mt-10 flex flex-wrap items-center gap-3">
             {remaining === null ? (
               <>
-                <span className="inline-flex items-center gap-2 text-[#E8DFD1]/70">
+                <span className="inline-flex items-center gap-2 text-oat/70">
                   <Timer size={16} aria-hidden />
                   {copy.timer}
                 </span>
@@ -372,15 +372,15 @@ export default function CookingMode({ recipe }: CookingModeProps) {
             ) : (
               <div
                 role="timer"
-                className={`flex items-center gap-4 rounded-full border border-[#F7F3EA]/30 py-2 pl-6 pr-2 ${
-                  remaining === 0 ? "animate-pulse border-[#D9573B]" : ""
+                className={`flex items-center gap-4 rounded-full border border-cream/30 py-2 pl-6 pr-2 ${
+                  remaining === 0 ? "animate-pulse border-cream" : ""
                 }`}
               >
                 <span className="font-display text-3xl tabular-nums">
                   {formatClock(remaining)}
                 </span>
                 {remaining === 0 && (
-                  <span className="text-[#D9573B]">{copy.timeUp}</span>
+                  <span className="font-medium text-cream">{copy.timeUp}</span>
                 )}
                 <button
                   type="button"
@@ -403,7 +403,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
               aria-controls="cook-ingredients"
               onClick={() => setShowIngredients((value) => !value)}
               className={`${PILL_BUTTON} ${
-                showIngredients ? "border-[#F7F3EA] bg-[#F7F3EA]/10" : ""
+                showIngredients ? "border-cream bg-cream/10" : ""
               }`}
             >
               <ListChecks size={16} aria-hidden />
@@ -422,18 +422,18 @@ export default function CookingMode({ recipe }: CookingModeProps) {
                 transition={{ duration: 0.3, ease: EASE }}
                 className="overflow-hidden"
               >
-                <div className="mt-6 rounded-2xl border border-[#F7F3EA]/20 bg-[#F7F3EA]/5 p-5">
-                  <p className="text-sm text-[#E8DFD1]/60">
+                <div className="mt-6 rounded-card border border-cream/20 bg-cream/5 p-5">
+                  <p className="text-sm text-oat/60">
                     {copy.servingsNote(recipe.servings)}
                   </p>
                   <ul className="mt-3 grid gap-x-10 sm:grid-cols-2">
                     {recipe.ingredients.map((item) => (
                       <li
                         key={item.ingredientId}
-                        className="flex items-baseline justify-between gap-4 border-b border-[#F7F3EA]/10 py-2 text-sm"
+                        className="flex items-baseline justify-between gap-4 border-b border-cream/10 py-2 text-sm"
                       >
                         <span>{getIngredientName(item.ingredientId, lang)}</span>
-                        <span className="tabular-nums text-[#E8DFD1]/70">
+                        <span className="tabular-nums text-oat/70">
                           {item.amount}
                         </span>
                       </li>
@@ -445,7 +445,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
           </AnimatePresence>
 
           {listening && (
-            <p className="mt-4 text-sm text-[#E8DFD1]/60">{copy.voiceHint}</p>
+            <p className="mt-4 text-sm text-oat/60">{copy.voiceHint}</p>
           )}
         </main>
 
@@ -463,7 +463,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
           {isLast ? (
             <Link
               href={detailHref}
-              className="inline-flex h-16 items-center gap-2 rounded-full bg-[#D9573B] px-8 text-base font-medium transition-colors hover:bg-[#F7F3EA] hover:text-[#30251F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
+              className="inline-flex h-16 items-center gap-2 rounded-full bg-terracotta px-8 text-base font-medium transition-colors hover:bg-cream hover:text-charcoal"
             >
               <Check size={18} aria-hidden />
               {copy.finish}
@@ -473,7 +473,7 @@ export default function CookingMode({ recipe }: CookingModeProps) {
               type="button"
               aria-label={copy.next}
               onClick={() => move(1)}
-              className="grid size-16 place-items-center rounded-full bg-[#D9573B] transition-colors hover:bg-[#F7F3EA] hover:text-[#30251F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
+              className="grid size-16 place-items-center rounded-full bg-terracotta transition-colors hover:bg-cream hover:text-charcoal"
             >
               <ArrowRight aria-hidden />
             </button>

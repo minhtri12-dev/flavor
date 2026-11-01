@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Check, Search, X } from "lucide-react";
 import { INGREDIENTS, getIngredientName } from "@/data/ingredients";
 import { DICTIONARY } from "@/lib/i18n";
+import { DURATION, EASE, PRESS, SPRING } from "@/lib/motion";
 import { INGREDIENT_CATEGORIES } from "@/types";
 import type { IngredientCategory, Language } from "@/types";
 
@@ -18,9 +19,6 @@ interface IngredientPickerProps {
 type CategoryFilter = IngredientCategory | "All";
 
 const FILTERS: readonly CategoryFilter[] = ["All", ...INGREDIENT_CATEGORIES];
-
-const CHIP_BASE =
-  "inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]";
 
 function normalize(value: string): string {
   return value
@@ -54,22 +52,24 @@ export default function IngredientPicker({
     <section
       id="ingredients"
       aria-labelledby="ingredients-heading"
-      className="bg-[#E8DFD1] px-5 py-20 md:px-10 md:py-28"
+      className="bg-oat"
     >
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="page-container section-pad">
+        <div className="mb-12 grid gap-4 md:grid-cols-12 md:items-end">
           <h2
             id="ingredients-heading"
-            className="font-display text-4xl leading-tight md:text-5xl"
+            className="font-display text-headline md:col-span-7"
           >
             {copy.picker.title}
           </h2>
-          <p className="max-w-sm text-[#30251F]/70">{copy.picker.note}</p>
+          <p className="text-lead text-muted md:col-span-4 md:col-start-9">
+            {copy.picker.note}
+          </p>
         </div>
 
         <div className="grid gap-10 lg:grid-cols-12">
           <div className="lg:col-span-8">
-            <label className="flex items-center gap-3 rounded-full border border-[#30251F]/25 bg-[#F7F3EA] px-5 py-3 focus-within:border-[#D9573B]">
+            <label className="flex items-center gap-3 rounded-full border border-charcoal/25 bg-cream px-6 py-4 transition-shadow focus-within:border-terracotta focus-within:ring-2 focus-within:ring-terracotta/30">
               <Search size={20} aria-hidden />
               <span className="sr-only">{copy.picker.search}</span>
               <input
@@ -77,7 +77,7 @@ export default function IngredientPicker({
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
                 placeholder={copy.picker.search}
-                className="w-full bg-transparent text-lg outline-none placeholder:text-[#30251F]/40"
+                className="w-full bg-transparent text-lg outline-none placeholder:text-charcoal/40"
               />
             </label>
 
@@ -86,26 +86,44 @@ export default function IngredientPicker({
               aria-label={copy.picker.filter}
               className="-mx-5 mt-6 flex gap-2 overflow-x-auto px-5 pb-2 md:mx-0 md:flex-wrap md:px-0"
             >
-              {FILTERS.map((filter) => (
-                <button
-                  key={filter}
-                  type="button"
-                  aria-pressed={category === filter}
-                  onClick={() => setCategory(filter)}
-                  className={`shrink-0 rounded-full px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-[#D9573B] ${
-                    category === filter
-                      ? "bg-[#30251F] text-[#F7F3EA]"
-                      : "bg-[#F7F3EA]/60 hover:bg-[#F7F3EA]"
-                  }`}
-                >
-                  {filter === "All"
-                    ? copy.picker.all
-                    : copy.categories[filter]}
-                </button>
-              ))}
+              {FILTERS.map((filter) => {
+                const active = category === filter;
+                return (
+                  <button
+                    key={filter}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setCategory(filter)}
+                    className="relative shrink-0 rounded-full px-4 py-2 text-sm"
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="filter-pill"
+                        transition={SPRING}
+                        className="absolute inset-0 rounded-full bg-charcoal"
+                      />
+                    )}
+                    {!active && (
+                      <span className="absolute inset-0 rounded-full bg-cream/60 transition-colors hover:bg-cream" />
+                    )}
+                    <span
+                      className={`relative ${
+                        active ? "text-cream" : "text-charcoal"
+                      }`}
+                    >
+                      {filter === "All"
+                        ? copy.picker.all
+                        : copy.categories[filter]}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
 
-            <div className="mt-6 flex min-h-32 flex-wrap content-start gap-2">
+            <motion.div
+              layout
+              className="mt-8 flex min-h-32 flex-wrap content-start gap-2"
+            >
               {visible.map((item) => {
                 const selected = selectedIds.includes(item.id);
                 return (
@@ -115,37 +133,49 @@ export default function IngredientPicker({
                     type="button"
                     aria-pressed={selected}
                     onClick={() => onToggle(item.id)}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                    className={`${CHIP_BASE} ${
-                      selected
-                        ? "border-[#D9573B] bg-[#D9573B] text-[#F7F3EA]"
-                        : "border-[#30251F]/20 bg-[#F7F3EA]/60 hover:border-[#30251F]"
-                    }`}
+                    whileTap={PRESS}
+                    transition={SPRING}
+                    className={`chip ${selected ? "chip-active" : ""}`}
                   >
-                    {selected && <Check size={14} aria-hidden />}
+                    {selected && (
+                      <motion.span
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        transition={SPRING}
+                        className="grid place-items-center"
+                      >
+                        <Check size={14} aria-hidden />
+                      </motion.span>
+                    )}
                     {item.name[lang]}
                   </motion.button>
                 );
               })}
               {visible.length === 0 && (
-                <p className="text-[#30251F]/70">
-                  {copy.picker.noMatch(query)}
-                </p>
+                <p className="text-muted">{copy.picker.noMatch(query)}</p>
               )}
-            </div>
+            </motion.div>
           </div>
 
           <aside
             aria-label={copy.picker.pantryLabel}
-            className="self-start rounded-2xl border border-[#30251F]/20 bg-[#F7F3EA] p-6 lg:col-span-4"
+            className="surface self-start p-6 lg:sticky lg:top-24 lg:col-span-4"
           >
-            <div className="flex items-baseline justify-between">
-              <h3 className="font-display text-2xl">{copy.picker.pantry}</h3>
-              <span aria-live="polite" className="text-sm text-[#30251F]/70">
-                {copy.picker.selected(selectedIds.length)}
-              </span>
+            <div className="flex items-start justify-between gap-4">
+              <h3 className="font-display text-title">{copy.picker.pantry}</h3>
+              <motion.span
+                key={selectedIds.length}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: DURATION.base, ease: EASE }}
+                className="font-display text-5xl leading-none tabular-nums text-terracotta"
+              >
+                {selectedIds.length}
+              </motion.span>
             </div>
+            <p aria-live="polite" className="mt-1 text-sm text-muted">
+              {copy.picker.selected(selectedIds.length)}
+            </p>
 
             <ul className="mt-5 flex min-h-20 flex-wrap content-start gap-2">
               <AnimatePresence>
@@ -158,13 +188,13 @@ export default function IngredientPicker({
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.8 }}
-                      transition={{ duration: 0.2 }}
+                      transition={{ duration: DURATION.fast }}
                     >
                       <button
                         type="button"
                         onClick={() => onToggle(id)}
                         aria-label={copy.picker.remove(name)}
-                        className={`${CHIP_BASE} border-[#D9573B] bg-[#D9573B] text-[#F7F3EA] hover:border-[#30251F] hover:bg-[#30251F]`}
+                        className="chip chip-active"
                       >
                         {name}
                         <X size={14} aria-hidden />
@@ -176,14 +206,14 @@ export default function IngredientPicker({
             </ul>
 
             {selectedIds.length === 0 && (
-              <p className="text-[#30251F]/60">{copy.picker.emptyPantry}</p>
+              <p className="text-muted">{copy.picker.emptyPantry}</p>
             )}
 
             <button
               type="button"
               onClick={onClear}
               disabled={selectedIds.length === 0}
-              className="mt-5 rounded-full border border-[#30251F]/30 px-4 py-2 text-sm transition-colors hover:bg-[#30251F] hover:text-[#F7F3EA] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-inherit"
+              className="btn btn-secondary mt-5"
             >
               {copy.picker.clear}
             </button>

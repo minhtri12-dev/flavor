@@ -7,6 +7,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChefHat, ChevronDown, Clock, Gauge, Heart } from "lucide-react";
 import { getIngredientName } from "@/data/ingredients";
 import { DICTIONARY } from "@/lib/i18n";
+import { DURATION, EASE, SPRING, VIEWPORT_ONCE } from "@/lib/motion";
 import type { Language, RecipeMatch } from "@/types";
 
 interface RecipeCardProps {
@@ -16,6 +17,7 @@ interface RecipeCardProps {
   isFavorite: boolean;
   onToggleFavorite: (slug: string) => void;
   featured?: boolean;
+  index?: number;
 }
 
 const RING_RADIUS = 17;
@@ -37,7 +39,7 @@ function MatchRing({ have, total, label }: MatchRingProps) {
       viewBox="0 0 48 48"
       role="img"
       aria-label={label}
-      className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-[#F7F3EA]"
+      className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-cream"
     >
       <g transform="rotate(-90 24 24)">
         <circle
@@ -45,22 +47,21 @@ function MatchRing({ have, total, label }: MatchRingProps) {
           cy="24"
           r={RING_RADIUS}
           fill="none"
-          stroke="#30251F"
-          strokeOpacity="0.15"
           strokeWidth="4"
+          className="stroke-charcoal/15"
         />
         <motion.circle
           cx="24"
           cy="24"
           r={RING_RADIUS}
           fill="none"
-          stroke="#D9573B"
           strokeWidth="4"
           strokeLinecap="round"
           strokeDasharray={RING_LENGTH}
+          className="stroke-terracotta"
           initial={{ strokeDashoffset: RING_LENGTH }}
           animate={{ strokeDashoffset: RING_LENGTH * (1 - ratio) }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.7, ease: EASE }}
         />
       </g>
       <text
@@ -69,7 +70,7 @@ function MatchRing({ have, total, label }: MatchRingProps) {
         textAnchor="middle"
         fontSize="11"
         fontWeight="600"
-        fill="#30251F"
+        className="fill-charcoal"
       >
         {have}/{total}
       </text>
@@ -84,6 +85,7 @@ export default function RecipeCard({
   isFavorite,
   onToggleFavorite,
   featured = false,
+  index = 0,
 }: RecipeCardProps) {
   const copy = DICTIONARY[lang];
   const { recipe, matched, missing } = match;
@@ -98,24 +100,26 @@ export default function RecipeCard({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 28 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      viewport={VIEWPORT_ONCE}
+      transition={{
+        duration: DURATION.slow,
+        ease: EASE,
+        delay: (index % 3) * 0.08,
+      }}
       className={`group flex flex-col ${
         featured ? "lg:col-span-2 lg:flex-row lg:items-center lg:gap-10" : ""
       }`}
     >
       <div
-        className={`relative aspect-[4/3] overflow-hidden rounded-2xl bg-[#E8DFD1] transition-shadow duration-500 group-hover:shadow-[0_18px_40px_-18px_rgba(48,37,31,0.45)] ${
+        className={`media-frame aspect-[4/3] transition-shadow duration-500 group-hover:shadow-lift ${
           featured ? "lg:w-[58%] lg:shrink-0" : ""
         }`}
       >
-        {!imageLoaded && !imageFailed && (
-          <div className="absolute inset-0 animate-pulse bg-[#DCCFBB]" />
-        )}
+        {!imageLoaded && !imageFailed && <div className="media-skeleton" />}
         {imageFailed ? (
-          <div className="absolute inset-0 grid place-items-center text-[#30251F]/25">
+          <div className="absolute inset-0 grid place-items-center text-charcoal/25">
             <ChefHat size={56} aria-hidden />
           </div>
         ) : (
@@ -147,19 +151,31 @@ export default function RecipeCard({
           aria-pressed={isFavorite}
           aria-label={isFavorite ? copy.card.unsave(name) : copy.card.save(name)}
           onClick={() => onToggleFavorite(recipe.slug)}
-          className="absolute right-3 top-3 z-10 grid size-11 place-items-center rounded-full bg-[#F7F3EA] transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-[#D9573B]"
+          className="absolute right-3 top-3 z-10 grid size-11 place-items-center rounded-full bg-cream transition-transform hover:scale-105"
         >
+          <AnimatePresence>
+            {isFavorite && (
+              <motion.span
+                key="burst"
+                aria-hidden
+                initial={{ scale: 0.7, opacity: 0.8 }}
+                animate={{ scale: 1.9, opacity: 0 }}
+                transition={{ duration: 0.6, ease: EASE }}
+                className="absolute inset-0 rounded-full border-2 border-terracotta"
+              />
+            )}
+          </AnimatePresence>
           <motion.span
             key={String(isFavorite)}
             initial={{ scale: 0.6 }}
             animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 18 }}
+            transition={SPRING}
             className="grid place-items-center"
           >
             <Heart
               size={18}
               aria-hidden
-              className={isFavorite ? "fill-[#D9573B] text-[#D9573B]" : ""}
+              className={isFavorite ? "fill-terracotta text-terracotta" : ""}
             />
           </motion.span>
         </button>
@@ -174,29 +190,26 @@ export default function RecipeCard({
 
       <div className={`flex flex-col ${featured ? "lg:flex-1" : ""}`}>
         <h3
-          className={`mt-4 font-display text-2xl leading-snug ${
+          className={`mt-5 font-display text-title ${
             featured ? "lg:mt-0 lg:text-4xl" : ""
           }`}
         >
-          <Link
-            href={href}
-            className="transition-colors hover:text-[#D9573B] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9573B]"
-          >
+          <Link href={href} className="transition-colors hover:text-terracotta">
             {name}
           </Link>
         </h3>
 
         {credit && (
-          <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-[#5C6B52]">
+          <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-forest">
             <ChefHat size={14} aria-hidden />
             {credit.isChef
               ? copy.card.inspiredBy(credit.name[lang])
               : credit.name[lang]}
-            <span className="text-[#30251F]/50">· {credit.origin[lang]}</span>
+            <span className="text-charcoal/50">· {credit.origin[lang]}</span>
           </p>
         )}
 
-        <p className="mt-2 text-[#30251F]/70">{recipe.description[lang]}</p>
+        <p className="mt-2 text-muted">{recipe.description[lang]}</p>
 
         <p className="mt-3 flex gap-4 text-sm">
           <span className="inline-flex items-center gap-1.5">
@@ -209,13 +222,13 @@ export default function RecipeCard({
           </span>
         </p>
 
-        <p className="mt-3 border-t border-[#30251F]/15 pt-3 text-sm">
+        <p className="mt-3 border-t border-charcoal/15 pt-3 text-sm">
           {hasSelection ? (
             <>
-              <span className="text-[#5C6B52]">
+              <span className="font-medium text-forest">
                 {copy.card.have(matched.length, requiredCount)}
               </span>{" "}
-              <span className="text-[#30251F]/70">
+              <span className="text-muted">
                 {missing.length > 0
                   ? copy.card.missing(
                       missing
@@ -226,7 +239,7 @@ export default function RecipeCard({
               </span>
             </>
           ) : (
-            <span className="text-[#30251F]/70">
+            <span className="text-muted">
               {copy.card.needs(requiredCount)}
             </span>
           )}
@@ -239,12 +252,12 @@ export default function RecipeCard({
               aria-expanded={notesOpen}
               aria-controls={notesId}
               onClick={() => setNotesOpen((value) => !value)}
-              className="inline-flex items-center gap-2 rounded-full border border-[#30251F]/25 px-4 py-2 text-sm transition-colors hover:bg-[#30251F] hover:text-[#F7F3EA] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
+              className="btn btn-secondary"
             >
               {copy.card.seasoning}
               <motion.span
                 animate={{ rotate: notesOpen ? 180 : 0 }}
-                transition={{ duration: 0.25 }}
+                transition={{ duration: DURATION.fast }}
                 className="grid place-items-center"
               >
                 <ChevronDown size={14} aria-hidden />
@@ -258,13 +271,13 @@ export default function RecipeCard({
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: 0.3, ease: EASE }}
                   className="overflow-hidden"
                 >
-                  {recipe.seasoning.map((note, index) => (
+                  {recipe.seasoning.map((note, noteIndex) => (
                     <li
-                      key={index}
-                      className="mt-3 border-l-2 border-[#87977B] pl-3 text-sm leading-relaxed text-[#30251F]/80"
+                      key={noteIndex}
+                      className="mt-3 border-l-2 border-forest pl-3 text-sm leading-relaxed text-charcoal/80"
                     >
                       {note[lang]}
                     </li>

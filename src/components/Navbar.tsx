@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import {
   AnimatePresence,
@@ -10,6 +10,7 @@ import {
 } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { DICTIONARY, LANGUAGES } from "@/lib/i18n";
+import { DURATION, EASE, SPRING, fadeUp, stagger } from "@/lib/motion";
 import type { Language } from "@/types";
 
 interface NavbarProps {
@@ -18,9 +19,6 @@ interface NavbarProps {
   favoritesCount: number;
 }
 
-const FOCUS =
-  "focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#D9573B]";
-
 interface LanguageSwitchProps {
   lang: Language;
   label: string;
@@ -28,31 +26,48 @@ interface LanguageSwitchProps {
 }
 
 function LanguageSwitch({ lang, label, onChange }: LanguageSwitchProps) {
+  const id = useId();
+
   return (
     <div
       role="group"
       aria-label={label}
-      className="flex rounded-full border border-[#30251F]/20 p-1"
+      className="flex rounded-full border border-charcoal/20 p-1"
     >
-      {LANGUAGES.map((code) => (
-        <button
-          key={code}
-          type="button"
-          lang={code}
-          aria-pressed={lang === code}
-          onClick={() => onChange(code)}
-          className={`rounded-full px-3 py-1 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-[#D9573B] ${
-            lang === code
-              ? "bg-[#30251F] text-[#F7F3EA]"
-              : "hover:bg-[#30251F]/10"
-          }`}
-        >
-          {code.toUpperCase()}
-        </button>
-      ))}
+      {LANGUAGES.map((code) => {
+        const active = lang === code;
+        return (
+          <button
+            key={code}
+            type="button"
+            lang={code}
+            aria-pressed={active}
+            onClick={() => onChange(code)}
+            className="relative rounded-full px-3 py-1.5 text-xs font-medium"
+          >
+            {active && (
+              <motion.span
+                layoutId={`lang-pill-${id}`}
+                transition={SPRING}
+                className="absolute inset-0 rounded-full bg-charcoal"
+              />
+            )}
+            <span
+              className={`relative transition-colors ${
+                active ? "text-cream" : "text-charcoal"
+              }`}
+            >
+              {code.toUpperCase()}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
+
+const LINK_UNDERLINE =
+  "relative text-sm after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-terracotta after:transition-transform after:duration-300 hover:after:scale-x-100";
 
 export default function Navbar({
   lang,
@@ -61,49 +76,58 @@ export default function Navbar({
 }: NavbarProps) {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const copy = DICTIONARY[lang].nav;
+  const dictionary = DICTIONARY[lang];
+  const copy = dictionary.nav;
   const { scrollY } = useScroll();
 
   useMotionValueEvent(scrollY, "change", (value) => {
     setScrolled(value > 24);
   });
 
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   const links = [
     { href: "/#discover", label: copy.discover, badge: false },
     { href: "/#cookbook", label: copy.cookbook, badge: true },
+    { href: "/#shopping", label: dictionary.shopping.title, badge: false },
   ];
+
+  const solid = scrolled || open;
 
   return (
     <header
       className={`fixed inset-x-0 top-0 z-30 transition-[background-color,box-shadow] duration-300 ${
-        scrolled
-          ? "bg-[#F7F3EA] shadow-[0_1px_0_rgba(48,37,31,0.12)]"
+        solid
+          ? "bg-cream shadow-[0_1px_0_rgb(37_39_32/0.12)]"
           : "bg-transparent"
       }`}
     >
       <nav
         aria-label={copy.main}
-        className={`mx-auto flex max-w-7xl items-center justify-between px-5 transition-[padding] duration-300 md:px-10 ${
+        className={`page-container flex items-center justify-between transition-[padding] duration-300 ${
           scrolled ? "py-3" : "py-5"
         }`}
       >
         <Link
           href="/#top"
-          className={`font-display text-2xl tracking-[0.18em] ${FOCUS}`}
+          className="font-display text-2xl tracking-[0.18em]"
         >
           FLAVOR
         </Link>
 
-        <div className="hidden items-center gap-6 md:flex">
+        <div className="hidden items-center gap-8 lg:flex">
           {links.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm transition-colors hover:text-[#D9573B] ${FOCUS}`}
-            >
+            <Link key={link.href} href={link.href} className={LINK_UNDERLINE}>
               {link.label}
               {link.badge && favoritesCount > 0 && (
-                <span className="ml-1.5 rounded-full bg-[#D9573B] px-2 py-0.5 text-xs text-[#F7F3EA]">
+                <span className="ml-2 rounded-full bg-terracotta px-2 py-0.5 text-xs text-cream">
                   {favoritesCount}
                 </span>
               )}
@@ -114,15 +138,12 @@ export default function Navbar({
             label={copy.language}
             onChange={onLanguageChange}
           />
-          <Link
-            href="/#ingredients"
-            className="rounded-full bg-[#D9573B] px-6 py-3 text-sm font-medium text-[#F7F3EA] transition-colors hover:bg-[#30251F] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
-          >
+          <Link href="/#ingredients" className="btn btn-primary">
             {copy.pick}
           </Link>
         </div>
 
-        <div className="flex items-center gap-3 md:hidden">
+        <div className="flex items-center gap-3 lg:hidden">
           <LanguageSwitch
             lang={lang}
             label={copy.language}
@@ -130,13 +151,13 @@ export default function Navbar({
           />
           <button
             type="button"
-            className={`rounded-full p-2 ${FOCUS}`}
+            className="grid size-11 place-items-center rounded-full border border-charcoal/20"
             aria-label={open ? copy.closeMenu : copy.openMenu}
             aria-expanded={open}
             aria-controls="mobile-menu"
             onClick={() => setOpen((value) => !value)}
           >
-            {open ? <X aria-hidden /> : <Menu aria-hidden />}
+            {open ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
           </button>
         </div>
       </nav>
@@ -145,34 +166,44 @@ export default function Navbar({
         {open && (
           <motion.div
             id="mobile-menu"
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-5 mb-4 flex flex-col gap-5 rounded-2xl border border-[#30251F]/15 bg-[#F7F3EA] p-6 md:hidden"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: DURATION.base, ease: EASE }}
+            className="overflow-hidden lg:hidden"
           >
-            {links.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setOpen(false)}
-                className="font-display text-2xl"
-              >
-                {link.label}
-                {link.badge && favoritesCount > 0 && (
-                  <span className="ml-2 rounded-full bg-[#D9573B] px-2.5 py-0.5 text-sm text-[#F7F3EA]">
-                    {favoritesCount}
-                  </span>
-                )}
-              </Link>
-            ))}
-            <Link
-              href="/#ingredients"
-              onClick={() => setOpen(false)}
-              className="rounded-full bg-[#D9573B] px-6 py-3 text-center text-sm font-medium text-[#F7F3EA]"
+            <motion.ul
+              variants={stagger(0.06)}
+              initial="hidden"
+              animate="show"
+              className="page-container flex flex-col pb-6"
             >
-              {copy.pick}
-            </Link>
+              {links.map((link) => (
+                <motion.li key={link.href} variants={fadeUp}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-between border-b border-charcoal/10 py-4 font-display text-title"
+                  >
+                    {link.label}
+                    {link.badge && favoritesCount > 0 && (
+                      <span className="rounded-full bg-terracotta px-2.5 py-0.5 font-sans text-sm text-cream">
+                        {favoritesCount}
+                      </span>
+                    )}
+                  </Link>
+                </motion.li>
+              ))}
+              <motion.li variants={fadeUp} className="pt-5">
+                <Link
+                  href="/#ingredients"
+                  onClick={() => setOpen(false)}
+                  className="btn btn-primary btn-lg w-full"
+                >
+                  {copy.pick}
+                </Link>
+              </motion.li>
+            </motion.ul>
           </motion.div>
         )}
       </AnimatePresence>

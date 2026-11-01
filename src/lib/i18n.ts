@@ -24,7 +24,7 @@ const en = {
   },
   hero: {
     title: "Something delicious starts here.",
-    body: "Tell FLAVOR what is in your kitchen. It finds what you can cook tonight, ranked by how much you already have.",
+    body: "Tell FLAVOR what is in your kitchen. It finds what you can cook today, ranked by how much you already have.",
     primary: "Start with your ingredients",
     secondary: "Browse recipes",
     caption: "Dinner in 30 minutes or less",
@@ -162,7 +162,7 @@ const vi: Dictionary = {
   },
   hero: {
     title: "Món ngon bắt đầu từ đây.",
-    body: "Cho FLAVOR biết trong bếp bạn đang có gì. FLAVOR sẽ gợi ý món có thể nấu tối nay, xếp theo mức độ bạn đã có đủ nguyên liệu.",
+    body: "Cho FLAVOR biết trong bếp bạn đang có gì. FLAVOR sẽ gợi ý món có thể nấu hôm nay, xếp theo mức độ bạn đã có đủ nguyên liệu.",
     primary: "Bắt đầu với nguyên liệu của bạn",
     secondary: "Xem công thức",
     caption: "Bữa tối trong 30 phút hoặc ít hơn",

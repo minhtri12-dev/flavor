@@ -7,6 +7,7 @@ import Hero from "../components/Hero";
 import IngredientPicker from "../components/IngredientPicker";
 import RecipeSection from "../components/RecipeSection";
 import ShoppingList from "../components/ShoppingList";
+import Reveal from "../components/Reveal";
 import Footer from "../components/Footer";
 import { RECIPES } from "@/data/recipes";
 import { DICTIONARY } from "@/lib/i18n";
@@ -70,12 +71,14 @@ export default function HomePage() {
       <main>
         <Hero lang={lang} />
 
-        <IngredientPicker
-          lang={lang}
-          selectedIds={selectedIds}
-          onToggle={toggleIngredient}
-          onClear={clearIngredients}
-        />
+        <Reveal>
+          <IngredientPicker
+            lang={lang}
+            selectedIds={selectedIds}
+            onToggle={toggleIngredient}
+            onClear={clearIngredients}
+          />
+        </Reveal>
 
         <RecipeSection
           id="discover"
@@ -110,14 +113,18 @@ export default function HomePage() {
           {...shared}
         />
 
-        <section className="bg-[#87977B] px-5 py-20 text-[#30251F] md:px-10 md:py-28">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="font-display text-4xl md:text-5xl">
-              {copy.aboutTitle}
-            </h2>
-            <p className="mt-6 text-lg leading-relaxed">{copy.aboutBody}</p>
-          </div>
-        </section>
+        <Reveal>
+          <section className="bg-forest text-cream">
+            <div className="page-container section-pad grid gap-10 md:grid-cols-12">
+              <h2 className="font-display text-headline md:col-span-6">
+                {copy.aboutTitle}
+              </h2>
+              <p className="text-lead text-cream/85 md:col-span-5 md:col-start-8">
+                {copy.aboutBody}
+              </p>
+            </div>
+          </section>
+        </Reveal>
 
         <RecipeSection
           id="cookbook"
@@ -129,7 +136,9 @@ export default function HomePage() {
           {...shared}
         />
 
-        <ShoppingList lang={lang} recipes={savedRecipes} />
+        <Reveal>
+          <ShoppingList lang={lang} recipes={savedRecipes} />
+        </Reveal>
       </main>
       <Footer lang={lang} />
     </MotionConfig>

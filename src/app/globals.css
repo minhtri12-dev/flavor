@@ -1,52 +1,129 @@
-/* Tailwind v4 (mặc định của create-next-app mới).
-   Nếu dự án dùng Tailwind v3, thay dòng dưới bằng 3 dòng:
-   @tailwind base; @tailwind components; @tailwind utilities; */
 @import "tailwindcss";
 
-:root {
-  --ivory: #f7f3ea;
-  --tomato: #d9573b;
-  --sage: #87977b;
-  --espresso: #30251f;
-  --beige: #e8dfd1;
+@theme inline {
+  --color-cream: #f5f1e8;
+  --color-oat: #e8dfd0;
+  --color-oat-deep: #d9cdb8;
+  --color-forest: #354638;
+  --color-terracotta: #9c5239;
+  --color-terracotta-deep: #7f4129;
+  --color-charcoal: #252720;
+  --color-muted: #5c5f54;
+
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-be-vietnam), system-ui, sans-serif;
+
+  --text-display: clamp(3rem, 8.5vw, 7rem);
+  --text-display--line-height: 0.98;
+  --text-headline: clamp(2.25rem, 5vw, 3.75rem);
+  --text-headline--line-height: 1.05;
+  --text-title: clamp(1.5rem, 2.4vw, 2rem);
+  --text-title--line-height: 1.2;
+  --text-lead: 1.125rem;
+  --text-lead--line-height: 1.7;
+
+  --radius-card: 1.25rem;
+  --radius-media: 1.5rem;
+  --shadow-lift: 0 18px 40px -18px rgb(37 39 32 / 0.45);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 5.5rem;
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+  }
+
+  body {
+    @apply bg-cream font-sans text-charcoal antialiased;
+    line-height: 1.65;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-weight: 500;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-terracotta);
+    outline-offset: 3px;
+  }
+
+  ::selection {
+    background: var(--color-terracotta);
+    color: var(--color-cream);
+  }
 }
 
-body {
-  background: var(--ivory);
-  color: var(--espresso);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  line-height: 1.6;
-  overflow-x: hidden;
-  -webkit-font-smoothing: antialiased;
-}
+@layer components {
+  .page-container {
+    @apply mx-auto w-full max-w-7xl px-5 md:px-10;
+  }
 
-.font-display {
-  font-family: var(--font-display), Georgia, serif;
-  font-weight: 500;
-}
+  .section-pad {
+    @apply py-20 md:py-28;
+  }
 
-h1,
-h2,
-h3 {
-  text-wrap: balance;
-}
+  .eyebrow {
+    @apply text-xs font-medium tracking-[0.14em] text-forest uppercase;
+  }
 
-p {
-  text-wrap: pretty;
-}
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-40;
+  }
 
-:focus-visible {
-  outline-color: var(--tomato);
-}
+  .btn-lg {
+    @apply px-8 py-4 text-base;
+  }
 
-::selection {
-  background: var(--tomato);
-  color: var(--ivory);
+  .btn-primary {
+    @apply bg-terracotta text-cream hover:bg-terracotta-deep;
+  }
+
+  .btn-secondary {
+    @apply border border-charcoal/70 text-charcoal hover:bg-charcoal hover:text-cream;
+  }
+
+  .btn-forest {
+    @apply bg-forest text-cream hover:bg-charcoal;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-charcoal/20 bg-cream/70 px-4 py-2 text-sm transition-colors duration-200 hover:border-charcoal;
+  }
+
+  .chip-active {
+    @apply border-terracotta bg-terracotta text-cream hover:border-terracotta-deep hover:bg-terracotta-deep;
+  }
+
+  .surface {
+    @apply rounded-card border border-charcoal/15 bg-cream;
+  }
+
+  .surface-oat {
+    @apply rounded-card border border-charcoal/10 bg-oat/60;
+  }
+
+  .media-frame {
+    @apply relative overflow-hidden rounded-media bg-oat;
+  }
+
+  .media-skeleton {
+    @apply absolute inset-0 animate-pulse bg-oat-deep;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

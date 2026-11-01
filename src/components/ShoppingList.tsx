@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { Check, Copy } from "lucide-react";
 import { INGREDIENTS, getIngredientName } from "@/data/ingredients";
 import { DICTIONARY } from "@/lib/i18n";
+import { DURATION, EASE, SPRING } from "@/lib/motion";
 import { useShoppingChecked } from "@/lib/storage";
 import { INGREDIENT_CATEGORIES } from "@/types";
 import type { IngredientCategory, Language, Recipe } from "@/types";
@@ -111,35 +112,37 @@ export default function ShoppingList({ lang, recipes }: ShoppingListProps) {
     <section
       id="shopping"
       aria-labelledby="shopping-heading"
-      className="bg-[#E8DFD1]"
+      className="bg-oat"
     >
-      <div className="mx-auto max-w-7xl px-5 py-20 md:px-10 md:py-28">
-        <div className="mb-10 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+      <div className="page-container section-pad">
+        <div className="mb-12 grid gap-4 md:grid-cols-12 md:items-end">
           <h2
             id="shopping-heading"
-            className="font-display text-4xl leading-tight md:text-5xl"
+            className="font-display text-headline md:col-span-7"
           >
             {copy.shopping.title}
           </h2>
-          <p className="max-w-sm text-[#30251F]/70">{copy.shopping.note}</p>
+          <p className="text-lead text-muted md:col-span-4 md:col-start-9">
+            {copy.shopping.note}
+          </p>
         </div>
 
         {total === 0 ? (
-          <p className="rounded-2xl border border-dashed border-[#30251F]/30 p-10 text-center text-[#30251F]/80">
+          <p className="rounded-card border border-dashed border-charcoal/30 p-10 text-center text-muted">
             {copy.shopping.empty}
           </p>
         ) : (
-          <div className="rounded-2xl border border-[#30251F]/20 bg-[#F7F3EA] p-6 md:p-8">
-            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="surface p-6 md:p-8">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               <div className="flex-1">
-                <p className="flex flex-wrap items-baseline gap-x-4 text-sm">
+                <p className="flex flex-wrap items-baseline gap-x-4">
                   <span
                     aria-live="polite"
-                    className="font-display text-2xl tabular-nums"
+                    className="font-display text-title tabular-nums"
                   >
                     {copy.shopping.progress(doneCount, total)}
                   </span>
-                  <span className="text-[#30251F]/60">
+                  <span className="text-sm text-muted">
                     {copy.shopping.fromRecipes(recipes.length)}
                   </span>
                 </p>
@@ -149,12 +152,12 @@ export default function ShoppingList({ lang, recipes }: ShoppingListProps) {
                   aria-valuemax={total}
                   aria-valuenow={doneCount}
                   aria-label={copy.shopping.title}
-                  className="mt-3 h-1.5 overflow-hidden rounded-full bg-[#30251F]/10"
+                  className="mt-3 h-1.5 overflow-hidden rounded-full bg-charcoal/10"
                 >
                   <motion.div
-                    className="h-full rounded-full bg-[#87977B]"
+                    className="h-full rounded-full bg-forest"
                     animate={{ width: `${ratio * 100}%` }}
-                    transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: DURATION.base, ease: EASE }}
                   />
                 </div>
               </div>
@@ -163,7 +166,7 @@ export default function ShoppingList({ lang, recipes }: ShoppingListProps) {
                 <button
                   type="button"
                   onClick={copyList}
-                  className="inline-flex items-center gap-2 rounded-full border border-[#30251F]/30 px-5 py-2.5 text-sm transition-colors hover:bg-[#30251F] hover:text-[#F7F3EA] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
+                  className="btn btn-secondary"
                 >
                   {copied ? (
                     <Check size={14} aria-hidden />
@@ -176,7 +179,7 @@ export default function ShoppingList({ lang, recipes }: ShoppingListProps) {
                   type="button"
                   onClick={clearChecked}
                   disabled={doneCount === 0}
-                  className="rounded-full border border-[#30251F]/30 px-5 py-2.5 text-sm transition-colors hover:bg-[#30251F] hover:text-[#F7F3EA] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-inherit"
+                  className="btn btn-secondary"
                 >
                   {copy.shopping.reset}
                 </button>
@@ -192,59 +195,64 @@ export default function ShoppingList({ lang, recipes }: ShoppingListProps) {
                   <h3 className="font-display text-xl">
                     {copy.categories[group.category]}
                   </h3>
-                  <ul className="mt-2 divide-y divide-[#30251F]/10">
-                    {group.entries.map((item) => {
-                      const isChecked = checked.includes(item.id);
-                      return (
-                        <li key={item.id}>
-                          <button
-                            type="button"
-                            role="checkbox"
-                            aria-checked={isChecked}
-                            onClick={() => toggleChecked(item.id)}
-                            className="flex w-full items-center gap-3 py-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#D9573B]"
+                  <ul className="mt-2 divide-y divide-charcoal/10">
+                    <AnimatePresence initial={false}>
+                      {group.entries.map((item) => {
+                        const isChecked = checked.includes(item.id);
+                        return (
+                          <motion.li
+                            key={item.id}
+                            layout
+                            initial={{ opacity: 0, x: -16 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: 16 }}
+                            transition={{ duration: DURATION.base, ease: EASE }}
                           >
-                            <span
-                              aria-hidden
-                              className={`grid size-6 shrink-0 place-items-center rounded-full border transition-colors ${
-                                isChecked
-                                  ? "border-[#87977B] bg-[#87977B] text-[#F7F3EA]"
-                                  : "border-[#30251F]/30"
-                              }`}
+                            <button
+                              type="button"
+                              role="checkbox"
+                              aria-checked={isChecked}
+                              onClick={() => toggleChecked(item.id)}
+                              className="flex w-full items-center gap-3 py-3 text-left"
                             >
-                              {isChecked && (
-                                <motion.span
-                                  initial={{ scale: 0.4 }}
-                                  animate={{ scale: 1 }}
-                                  transition={{
-                                    type: "spring",
-                                    stiffness: 500,
-                                    damping: 20,
-                                  }}
-                                  className="grid place-items-center"
-                                >
-                                  <Check size={14} />
-                                </motion.span>
-                              )}
-                            </span>
-                            <span
-                              className={`flex-1 transition-opacity ${
-                                isChecked ? "line-through opacity-50" : ""
-                              }`}
-                            >
-                              {getIngredientName(item.id, lang)}
-                            </span>
-                            <span
-                              className={`text-sm tabular-nums text-[#30251F]/70 ${
-                                isChecked ? "opacity-50" : ""
-                              }`}
-                            >
-                              {item.amount}
-                            </span>
-                          </button>
-                        </li>
-                      );
-                    })}
+                              <span
+                                aria-hidden
+                                className={`grid size-6 shrink-0 place-items-center rounded-full border transition-colors ${
+                                  isChecked
+                                    ? "border-forest bg-forest text-cream"
+                                    : "border-charcoal/30"
+                                }`}
+                              >
+                                {isChecked && (
+                                  <motion.span
+                                    initial={{ scale: 0.4 }}
+                                    animate={{ scale: 1 }}
+                                    transition={SPRING}
+                                    className="grid place-items-center"
+                                  >
+                                    <Check size={14} />
+                                  </motion.span>
+                                )}
+                              </span>
+                              <span
+                                className={`flex-1 transition-opacity ${
+                                  isChecked ? "line-through opacity-50" : ""
+                                }`}
+                              >
+                                {getIngredientName(item.id, lang)}
+                              </span>
+                              <span
+                                className={`text-sm tabular-nums text-muted ${
+                                  isChecked ? "opacity-50" : ""
+                                }`}
+                              >
+                                {item.amount}
+                              </span>
+                            </button>
+                          </motion.li>
+                        );
+                      })}
+                    </AnimatePresence>
                   </ul>
                 </section>
               ))}
