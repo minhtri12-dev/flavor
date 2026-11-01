@@ -4,11 +4,22 @@ import { useId, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChefHat, ChevronDown, Clock, Gauge, Heart } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  ChefHat,
+  ChevronDown,
+  Clock,
+  Gauge,
+  Heart,
+} from "lucide-react";
+import PhotoCredit from "@/components/PhotoCredit";
 import { getIngredientName } from "@/data/ingredients";
 import { DICTIONARY } from "@/lib/i18n";
 import { DURATION, EASE, SPRING, VIEWPORT_ONCE } from "@/lib/motion";
 import type { Language, RecipeMatch } from "@/types";
+
+export type CardVariant = "standard" | "feature" | "stack" | "wide";
 
 interface RecipeCardProps {
   lang: Language;
@@ -16,9 +27,60 @@ interface RecipeCardProps {
   hasSelection: boolean;
   isFavorite: boolean;
   onToggleFavorite: (slug: string) => void;
-  featured?: boolean;
+  variant?: CardVariant;
   index?: number;
+  className?: string;
 }
+
+interface VariantStyle {
+  article: string;
+  media: string;
+  body: string;
+  title: string;
+  description: string;
+  sizes: string;
+}
+
+const VARIANTS: Record<CardVariant, VariantStyle> = {
+  standard: {
+    article: "flex flex-col",
+    media: "aspect-[4/3]",
+    body: "pt-5",
+    title: "text-title min-h-[2.4em] line-clamp-2",
+    description: "line-clamp-2 min-h-[3.3em]",
+    sizes: "(min-width: 1024px) 40vw, (min-width: 640px) 50vw, 100vw",
+  },
+  feature: {
+    article: "flex flex-col",
+    media:
+      "aspect-[4/3] md:aspect-[16/9] lg:aspect-auto lg:min-h-[26rem] lg:flex-1",
+    body: "pt-6",
+    title: "text-title lg:text-4xl",
+    description: "line-clamp-3",
+    sizes: "(min-width: 1024px) 58vw, 100vw",
+  },
+  stack: {
+    article: "flex flex-col lg:flex-row lg:gap-5",
+    media: "aspect-[4/3] lg:aspect-[4/5] lg:w-[44%] lg:shrink-0 lg:self-start",
+    body: "pt-5 lg:pt-0",
+    title: "text-title min-h-[2.4em] line-clamp-2 lg:text-xl",
+    description: "line-clamp-2 min-h-[3.3em] lg:hidden",
+    sizes: "(min-width: 1024px) 22vw, (min-width: 640px) 50vw, 100vw",
+  },
+  wide: {
+    article: "flex flex-col lg:flex-row lg:items-center lg:gap-10",
+    media: "aspect-[4/3] lg:aspect-[16/10] lg:w-[58%] lg:shrink-0",
+    body: "pt-5 lg:flex-1 lg:pt-0",
+    title: "text-title lg:text-4xl",
+    description: "line-clamp-3",
+    sizes: "(min-width: 1024px) 58vw, 100vw",
+  },
+};
+
+const LABELS: Record<Language, { explore: string }> = {
+  en: { explore: "Explore recipe" },
+  vi: { explore: "Xem công thức" },
+};
 
 const RING_RADIUS = 17;
 const RING_LENGTH = 2 * Math.PI * RING_RADIUS;
@@ -27,9 +89,10 @@ interface MatchRingProps {
   have: number;
   total: number;
   label: string;
+  className: string;
 }
 
-function MatchRing({ have, total, label }: MatchRingProps) {
+function MatchRing({ have, total, label, className }: MatchRingProps) {
   const ratio = total === 0 ? 0 : have / total;
 
   return (
@@ -39,7 +102,7 @@ function MatchRing({ have, total, label }: MatchRingProps) {
       viewBox="0 0 48 48"
       role="img"
       aria-label={label}
-      className="pointer-events-none absolute bottom-3 left-3 rounded-full bg-cream"
+      className={`pointer-events-none absolute z-10 rounded-full bg-cream ${className}`}
     >
       <g transform="rotate(-90 24 24)">
         <circle
@@ -84,10 +147,14 @@ export default function RecipeCard({
   hasSelection,
   isFavorite,
   onToggleFavorite,
-  featured = false,
+  variant = "standard",
   index = 0,
+  className = "",
 }: RecipeCardProps) {
   const copy = DICTIONARY[lang];
+  const label = LABELS[lang];
+  const style = VARIANTS[variant];
+  const isStack = variant === "stack";
   const { recipe, matched, missing } = match;
   const [imageFailed, setImageFailed] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -96,7 +163,19 @@ export default function RecipeCard({
   const requiredCount = matched.length + missing.length;
   const name = recipe.name[lang];
   const credit = recipe.credit;
+  const photoCredit = recipe.image.credit;
   const href = `/recipes/${recipe.slug}`;
+
+  const haveText = copy.card.have(matched.length, requiredCount);
+  const restText =
+    missing.length > 0
+      ? copy.card.missing(
+          missing.map((id) => getIngredientName(id, lang)).join(", "),
+        )
+      : copy.card.ready;
+  const matchTitle = hasSelection
+    ? `${haveText} ${restText}`
+    : copy.card.needs(requiredCount);
 
   return (
     <motion.article
@@ -106,16 +185,12 @@ export default function RecipeCard({
       transition={{
         duration: DURATION.slow,
         ease: EASE,
-        delay: (index % 3) * 0.08,
+        delay: (index % 4) * 0.07,
       }}
-      className={`group flex flex-col ${
-        featured ? "lg:col-span-2 lg:flex-row lg:items-center lg:gap-10" : ""
-      }`}
+      className={`group ${style.article} ${className}`}
     >
       <div
-        className={`media-frame aspect-[4/3] transition-shadow duration-500 group-hover:shadow-lift ${
-          featured ? "lg:w-[58%] lg:shrink-0" : ""
-        }`}
+        className={`media-frame transition-[transform,box-shadow] duration-500 ease-soft group-hover:-translate-y-1 group-hover:shadow-lift ${style.media}`}
       >
         {!imageLoaded && !imageFailed && <div className="media-skeleton" />}
         {imageFailed ? (
@@ -127,25 +202,37 @@ export default function RecipeCard({
             src={recipe.image.src}
             alt={recipe.image.alt[lang]}
             fill
-            priority={featured}
-            sizes={
-              featured
-                ? "(min-width: 1024px) 40vw, 100vw"
-                : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            }
+            sizes={style.sizes}
             onLoad={() => setImageLoaded(true)}
             onError={() => setImageFailed(true)}
-            className={`object-cover transition-[transform,opacity] duration-700 ease-out group-hover:scale-105 ${
+            className={`object-cover transition-[transform,opacity] duration-[900ms] ease-soft group-hover:scale-[1.06] ${
               imageLoaded ? "opacity-100" : "opacity-0"
             }`}
           />
         )}
+
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-linear-to-t from-charcoal/45 via-charcoal/0 to-charcoal/10 opacity-0 transition-opacity duration-500 ease-soft group-hover:opacity-100"
+        />
+
         <Link
           href={href}
           aria-hidden
           tabIndex={-1}
           className="absolute inset-0"
         />
+
+        <span
+          aria-hidden
+          className={`pointer-events-none absolute left-3 top-3 z-10 inline-flex -translate-y-1 items-center gap-1.5 rounded-full bg-cream px-3.5 py-2 text-xs font-medium opacity-0 transition-[opacity,transform] duration-500 ease-soft group-hover:translate-y-0 group-hover:opacity-100 ${
+            isStack ? "lg:hidden" : ""
+          }`}
+        >
+          {label.explore}
+          <ArrowUpRight size={14} />
+        </span>
+
         <button
           type="button"
           aria-pressed={isFavorite}
@@ -179,91 +266,125 @@ export default function RecipeCard({
             />
           </motion.span>
         </button>
+
         {hasSelection && (
           <MatchRing
             have={matched.length}
             total={requiredCount}
             label={copy.card.ring(matched.length, requiredCount)}
+            className={
+              isStack
+                ? "bottom-3 left-3 lg:bottom-auto lg:top-3"
+                : "bottom-3 left-3"
+            }
+          />
+        )}
+
+        {photoCredit && !imageFailed && (
+          <PhotoCredit
+            credit={photoCredit}
+            lang={lang}
+            className={`absolute bottom-3 right-3 z-10 max-w-[58%] truncate rounded-full bg-cream/90 px-3 py-1 text-[11px] text-charcoal ${
+              isStack ? "lg:left-3 lg:right-3 lg:max-w-none" : ""
+            }`}
           />
         )}
       </div>
 
-      <div className={`flex flex-col ${featured ? "lg:flex-1" : ""}`}>
-        <h3
-          className={`mt-5 font-display text-title ${
-            featured ? "lg:mt-0 lg:text-4xl" : ""
-          }`}
-        >
+      <div className={`flex min-w-0 flex-1 flex-col ${style.body}`}>
+        <h3 className={`font-display ${style.title}`}>
           <Link href={href} className="transition-colors hover:text-terracotta">
             {name}
           </Link>
         </h3>
 
-        {credit && (
-          <p className="mt-2 inline-flex items-center gap-1.5 text-sm text-forest">
-            <ChefHat size={14} aria-hidden />
-            {credit.isChef
-              ? copy.card.inspiredBy(credit.name[lang])
-              : credit.name[lang]}
-            <span className="text-charcoal/50">· {credit.origin[lang]}</span>
-          </p>
-        )}
-
-        <p className="mt-2 text-muted">{recipe.description[lang]}</p>
-
-        <p className="mt-3 flex gap-4 text-sm">
-          <span className="inline-flex items-center gap-1.5">
-            <Clock size={14} aria-hidden />
-            {copy.card.minutes(recipe.minutes)}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Gauge size={14} aria-hidden />
-            {copy.difficulty[recipe.difficulty]}
-          </span>
-        </p>
-
-        <p className="mt-3 border-t border-charcoal/15 pt-3 text-sm">
-          {hasSelection ? (
-            <>
-              <span className="font-medium text-forest">
-                {copy.card.have(matched.length, requiredCount)}
-              </span>{" "}
-              <span className="text-muted">
-                {missing.length > 0
-                  ? copy.card.missing(
-                      missing
-                        .map((id) => getIngredientName(id, lang))
-                        .join(", "),
-                    )
-                  : copy.card.ready}
+        <div className="mt-2 h-5">
+          {credit && (
+            <p className="flex h-5 items-center gap-1.5 overflow-hidden whitespace-nowrap text-sm text-forest">
+              <ChefHat size={14} aria-hidden className="shrink-0" />
+              <span className="min-w-0 truncate">
+                {credit.isChef
+                  ? copy.card.inspiredBy(credit.name[lang])
+                  : credit.name[lang]}
+                <span className="text-charcoal/50">
+                  {" "}
+                  · {credit.origin[lang]}
+                </span>
               </span>
-            </>
-          ) : (
-            <span className="text-muted">
-              {copy.card.needs(requiredCount)}
-            </span>
+            </p>
           )}
+        </div>
+
+        <p className={`mt-2 text-muted ${style.description}`}>
+          {recipe.description[lang]}
         </p>
 
-        {recipe.seasoning && recipe.seasoning.length > 0 && (
-          <div className="mt-3">
-            <button
-              type="button"
-              aria-expanded={notesOpen}
-              aria-controls={notesId}
-              onClick={() => setNotesOpen((value) => !value)}
-              className="btn btn-secondary"
-            >
-              {copy.card.seasoning}
-              <motion.span
-                animate={{ rotate: notesOpen ? 180 : 0 }}
-                transition={{ duration: DURATION.fast }}
-                className="grid place-items-center"
-              >
-                <ChevronDown size={14} aria-hidden />
-              </motion.span>
-            </button>
+        <div className="mt-auto pt-4">
+          <p className="flex gap-4 text-sm">
+            <span className="inline-flex items-center gap-1.5">
+              <Clock size={14} aria-hidden />
+              {copy.card.minutes(recipe.minutes)}
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <Gauge size={14} aria-hidden />
+              {copy.difficulty[recipe.difficulty]}
+            </span>
+          </p>
 
+          <div className="mt-3 border-t border-charcoal/15 pt-3">
+            <p
+              title={matchTitle}
+              className="line-clamp-2 min-h-[3.3em] text-sm"
+            >
+              {hasSelection ? (
+                <>
+                  <span className="font-medium text-forest">{haveText}</span>{" "}
+                  <span className="text-muted">{restText}</span>
+                </>
+              ) : (
+                <span className="text-muted">{matchTitle}</span>
+              )}
+            </p>
+          </div>
+
+          <div className="mt-2 flex min-h-11 items-center justify-between gap-3">
+            {recipe.seasoning && recipe.seasoning.length > 0 ? (
+              <button
+                type="button"
+                aria-expanded={notesOpen}
+                aria-controls={notesId}
+                onClick={() => setNotesOpen((value) => !value)}
+                className="inline-flex items-center gap-2 rounded-full border border-charcoal/70 px-4 py-2 text-xs font-medium transition-colors duration-200 hover:bg-charcoal hover:text-cream"
+              >
+                {copy.card.seasoning}
+                <motion.span
+                  animate={{ rotate: notesOpen ? 180 : 0 }}
+                  transition={{ duration: DURATION.fast }}
+                  className="grid place-items-center"
+                >
+                  <ChevronDown size={14} aria-hidden />
+                </motion.span>
+              </button>
+            ) : (
+              <span aria-hidden />
+            )}
+
+            <Link
+              href={href}
+              className="inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 transition-colors hover:text-terracotta hover:underline"
+            >
+              <span className={isStack ? "lg:sr-only" : ""}>
+                {label.explore}
+              </span>
+              <ArrowRight
+                size={14}
+                aria-hidden
+                className="transition-transform duration-300 ease-soft group-hover:translate-x-0.5"
+              />
+            </Link>
+          </div>
+
+          {recipe.seasoning && recipe.seasoning.length > 0 && (
             <AnimatePresence initial={false}>
               {notesOpen && (
                 <motion.ul
@@ -285,8 +406,8 @@ export default function RecipeCard({
                 </motion.ul>
               )}
             </AnimatePresence>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </motion.article>
   );

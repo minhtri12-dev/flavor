@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PhotoCredit from "@/components/PhotoCredit";
 import Reveal from "@/components/Reveal";
 import { getIngredientName } from "@/data/ingredients";
 import { DICTIONARY } from "@/lib/i18n";
@@ -55,6 +56,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
   const name = recipe.name[lang];
   const isFavorite = favorites.includes(recipe.slug);
   const credit = recipe.credit;
+  const photoCredit = recipe.image.credit;
 
   const copyList = async () => {
     const lines = recipe.ingredients.map((item) => {
@@ -116,6 +118,13 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
               />
             )}
           </div>
+          {photoCredit && !imageFailed && (
+            <PhotoCredit
+              credit={photoCredit}
+              lang={lang}
+              className="mt-2 text-xs text-muted"
+            />
+          )}
 
           <div className="mt-10 grid gap-6 md:grid-cols-12 md:items-end">
             <div className="md:col-span-8">

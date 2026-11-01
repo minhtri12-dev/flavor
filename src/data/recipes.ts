@@ -1,9 +1,6 @@
 import { localized } from "@/lib/i18n";
+import { RECIPE_IMAGES } from "@/data/recipeImages";
 import type { Recipe } from "@/types";
-
-function photo(id: string): string {
-  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=80`;
-}
 
 const VIETNAM_TRADITION = {
   name: localized("Vietnamese home cooking", "Món nhà truyền thống Việt Nam"),
@@ -19,13 +16,7 @@ export const RECIPES: Recipe[] = [
       "Garlic sizzled slowly in olive oil, tossed through spaghetti with a pinch of chili.",
       "Tỏi phi chậm trong dầu ô liu, trộn cùng mì Ý và một chút ớt khô.",
     ),
-    image: {
-      src: photo("photo-1473093295043-cdd812d0e601"),
-      alt: localized(
-        "A plate of spaghetti with garlic and chili",
-        "Đĩa mì Ý với tỏi và ớt",
-      ),
-    },
+    image: RECIPE_IMAGES["spaghetti-aglio-e-olio"],
     minutes: 20,
     difficulty: "Easy",
     servings: 2,
@@ -59,13 +50,7 @@ export const RECIPES: Recipe[] = [
       "Eggs poached in a paprika-spiced sauce of tomato, pepper and onion.",
       "Trứng chần trong sốt cà chua, ớt chuông và hành tây đậm vị paprika.",
     ),
-    image: {
-      src: photo("photo-1504674900247-0877df9cc836"),
-      alt: localized(
-        "A table spread with colourful home-cooked dishes",
-        "Bàn ăn bày nhiều món nhà làm đầy màu sắc",
-      ),
-    },
+    image: RECIPE_IMAGES["smoky-tomato-shakshuka"],
     minutes: 30,
     difficulty: "Easy",
     servings: 2,
@@ -100,13 +85,7 @@ export const RECIPES: Recipe[] = [
       "Warm rice, wilted spinach and creamy avocado with a sharp lemon dressing.",
       "Cơm nóng, rau bina mềm và bơ béo ngậy cùng sốt chanh chua nhẹ.",
     ),
-    image: {
-      src: photo("photo-1512621776951-a57141f2eefd"),
-      alt: localized(
-        "A bowl of rice, greens and avocado",
-        "Tô cơm với rau xanh và bơ",
-      ),
-    },
+    image: RECIPE_IMAGES["lemon-avocado-grain-bowl"],
     minutes: 15,
     difficulty: "Easy",
     servings: 2,
@@ -139,13 +118,7 @@ export const RECIPES: Recipe[] = [
       "Crisp-skinned chicken thigh over tomatoes, spinach and torn basil.",
       "Đùi gà da giòn trên nền cà chua, rau bina và húng quế xé nhỏ.",
     ),
-    image: {
-      src: photo("photo-1546069901-ba9599a7e63c"),
-      alt: localized(
-        "A salad with grilled chicken and tomatoes",
-        "Đĩa salad với gà nướng và cà chua",
-      ),
-    },
+    image: RECIPE_IMAGES["charred-chicken-salad"],
     minutes: 25,
     difficulty: "Medium",
     servings: 2,
@@ -179,13 +152,7 @@ export const RECIPES: Recipe[] = [
       "Blistered dough, bright tomato sauce and basil torn at the end.",
       "Đế bánh phồng giòn, sốt cà chua tươi và húng quế xé phủ lên cuối cùng.",
     ),
-    image: {
-      src: photo("photo-1565299624946-b28f40a0ae38"),
-      alt: localized(
-        "A freshly baked margherita pizza",
-        "Chiếc pizza Margherita mới nướng",
-      ),
-    },
+    image: RECIPE_IMAGES["pan-pizza-margherita"],
     minutes: 45,
     difficulty: "Hard",
     servings: 3,
@@ -218,13 +185,7 @@ export const RECIPES: Recipe[] = [
       "Fluffy pancakes sweetened only by ripe bananas.",
       "Bánh pancake bông xốp, vị ngọt hoàn toàn từ chuối chín.",
     ),
-    image: {
-      src: photo("photo-1567620905732-2d1ec7ab7445"),
-      alt: localized(
-        "A stack of pancakes with banana",
-        "Chồng bánh pancake với chuối",
-      ),
-    },
+    image: RECIPE_IMAGES["banana-oat-pancakes"],
     minutes: 15,
     difficulty: "Easy",
     servings: 2,
@@ -260,13 +221,7 @@ export const RECIPES: Recipe[] = [
       "Three ingredients simmered slowly into a mellow, silky sauce for pasta.",
       "Ba nguyên liệu om chậm thành sốt mềm, mịn để trộn mì.",
     ),
-    image: {
-      src: photo("photo-1551183053-bf91a1d81141"),
-      alt: localized(
-        "Pasta in a rich tomato sauce",
-        "Mì Ý trong sốt cà chua đậm đà",
-      ),
-    },
+    image: RECIPE_IMAGES["buttery-tomato-onion-sauce"],
     minutes: 50,
     difficulty: "Easy",
     servings: 3,
@@ -319,13 +274,7 @@ export const RECIPES: Recipe[] = [
       "Creamy, small-curd eggs cooked gently and pulled from the heat early.",
       "Trứng bác mịn, hạt nhỏ, nấu nhẹ tay và nhấc khỏi bếp sớm.",
     ),
-    image: {
-      src: photo("photo-1525351484163-7529414344d8"),
-      alt: localized(
-        "Soft scrambled eggs on toast",
-        "Trứng bác mềm trên bánh mì nướng",
-      ),
-    },
+    image: RECIPE_IMAGES["soft-scrambled-eggs"],
     minutes: 10,
     difficulty: "Medium",
     servings: 1,
@@ -376,10 +325,7 @@ export const RECIPES: Recipe[] = [
       "A pale, tender omelette rolled around a creamy centre, with no browning.",
       "Trứng ốp la màu nhạt, mềm, cuộn quanh phần ruột béo mịn, không để cháy xém.",
     ),
-    image: {
-      src: photo("photo-1510693206972-df098062cb71"),
-      alt: localized("A rolled omelette on a plate", "Trứng cuộn trên đĩa"),
-    },
+    image: RECIPE_IMAGES["french-rolled-omelette"],
     minutes: 10,
     difficulty: "Hard",
     servings: 1,
@@ -424,18 +370,12 @@ export const RECIPES: Recipe[] = [
   },
   {
     slug: "thit-kho-trung",
-    name: localized(
-      "Caramelised Pork and Eggs",
-      "Thịt kho trứng",
-    ),
+    name: localized("Caramelised Pork and Eggs", "Thịt kho trứng"),
     description: localized(
       "Pork belly and boiled eggs braised in a sweet-salty caramel sauce.",
       "Ba chỉ heo và trứng luộc kho trong nước màu đậm vị mặn ngọt.",
     ),
-    image: {
-      src: photo("photo-1546069901-ba9599a7e63c"),
-      alt: localized("A bowl of braised pork", "Tô thịt heo kho"),
-    },
+    image: RECIPE_IMAGES["thit-kho-trung"],
     minutes: 60,
     difficulty: "Medium",
     servings: 4,
@@ -483,10 +423,7 @@ export const RECIPES: Recipe[] = [
       "Chicken stir-fried hard with lemongrass, garlic and chilli until fragrant.",
       "Gà xào lửa lớn với sả, tỏi và ớt cho thơm nức.",
     ),
-    image: {
-      src: photo("photo-1512621776951-a57141f2eefd"),
-      alt: localized("A plate of stir-fried chicken", "Đĩa gà xào"),
-    },
+    image: RECIPE_IMAGES["ga-xao-sa-ot"],
     minutes: 30,
     difficulty: "Easy",
     servings: 2,
@@ -534,13 +471,7 @@ export const RECIPES: Recipe[] = [
       "Soft eggs folded into a sweet-tart tomato sauce and finished with scallion.",
       "Trứng mềm trộn vào sốt cà chua chua ngọt, rắc hành lá lúc cuối.",
     ),
-    image: {
-      src: photo("photo-1504674900247-0877df9cc836"),
-      alt: localized(
-        "A home-cooked dish of egg and tomato",
-        "Món trứng và cà chua nấu tại nhà",
-      ),
-    },
+    image: RECIPE_IMAGES["trung-chien-ca-chua"],
     minutes: 15,
     difficulty: "Easy",
     servings: 2,

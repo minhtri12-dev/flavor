@@ -91,7 +91,6 @@ export default function HomePage() {
           matches={suggested}
           hasSelection={hasSelection}
           emptyMessage={copy.discoverEmpty}
-          featuredFirst
           {...shared}
         />
 
@@ -101,6 +100,7 @@ export default function HomePage() {
           hasSelection={false}
           emptyMessage={copy.popularEmpty}
           tinted
+          mirrored
           {...shared}
         />
 

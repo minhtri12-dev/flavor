@@ -8,6 +8,8 @@ import {
   useScroll,
   useTransform,
 } from "framer-motion";
+import PhotoCredit from "@/components/PhotoCredit";
+import { HERO_IMAGE } from "@/data/recipeImages";
 import { DICTIONARY } from "@/lib/i18n";
 import { EASE, fadeUp, stagger } from "@/lib/motion";
 import type { Language } from "@/types";
@@ -29,6 +31,7 @@ export default function Hero({ lang }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const reduceMotion = useReducedMotion();
   const [imageReady, setImageReady] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -92,19 +95,28 @@ export default function Hero({ lang }: HeroProps) {
             transition={{ duration: 1.2, ease: EASE, delay: 0.2 }}
             className="media-frame aspect-[4/5]"
           >
-            {!imageReady && <div className="media-skeleton" />}
-            <Image
-              src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80"
-              alt={copy.imageAlt}
-              fill
-              priority
-              sizes="(min-width: 768px) 40vw, 100vw"
-              onLoad={() => setImageReady(true)}
-              onError={() => setImageReady(true)}
-              className={`object-cover transition-opacity duration-700 ${
-                imageReady ? "opacity-100" : "opacity-0"
-              }`}
-            />
+            {!imageReady && !imageFailed && <div className="media-skeleton" />}
+            {!imageFailed && (
+              <Image
+                src={HERO_IMAGE.src}
+                alt={HERO_IMAGE.alt[lang]}
+                fill
+                priority
+                sizes="(min-width: 768px) 40vw, 100vw"
+                onLoad={() => setImageReady(true)}
+                onError={() => setImageFailed(true)}
+                className={`object-cover transition-opacity duration-700 ${
+                  imageReady ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            )}
+            {HERO_IMAGE.credit && !imageFailed && (
+              <PhotoCredit
+                credit={HERO_IMAGE.credit}
+                lang={lang}
+                className="absolute bottom-3 right-3 z-10 max-w-[75%] truncate rounded-full bg-cream/90 px-3 py-1 text-[11px] text-charcoal"
+              />
+            )}
           </motion.div>
           <motion.p
             initial={{ opacity: 0, y: 16 }}

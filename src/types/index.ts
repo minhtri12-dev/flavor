@@ -22,9 +22,17 @@ export interface Ingredient {
 
 export type Difficulty = "Easy" | "Medium" | "Hard";
 
+export interface ImageCredit {
+  photographer: string;
+  profileUrl: string;
+  photoUrl: string;
+}
+
 export interface RecipeImage {
+  id?: string;
   src: string;
   alt: Localized;
+  credit?: ImageCredit;
 }
 
 export interface RecipeIngredient {
